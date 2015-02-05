@@ -34,8 +34,8 @@ unix://[/path/to/socket] to use.
    The socket(s) to bind to in daemon mode specified using one or more
    tcp://host:port, unix:///path/to/socket, fd://* or fd://socketfd.
 
-**--api-enable-cors**=*true*|*false*
-  Enable CORS headers in the remote API. Default is false.
+**--api-enable-cors**="*url_list*|*true*|*false*"
+  Provide CORS headers. *url_list* like "http://foo,http://bar" will be set to allowed origin. Default is "false" means disable. If "true" is given, allowed origin will be set to * .
 
 **-b**=""
   Attach containers to a pre\-existing network bridge; use 'none' to disable container networking

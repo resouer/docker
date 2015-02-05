@@ -69,7 +69,7 @@ expect an integer, and they can only be specified once.
     A self-sufficient runtime for linux containers.
 
     Options:
-      --api-enable-cors=false                    Enable CORS headers in the remote API
+      --api-enable-cors=false                    CORS headers, true or * to allow all
       -b, --bridge=""                            Attach containers to a network bridge
       --bip=""                                   Specify network bridge IP
       -D, --debug=false                          Enable debug mode
