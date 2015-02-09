@@ -1219,8 +1219,9 @@ func optionsHandler(eng *engine.Engine, version version.Version, w http.Response
 	w.WriteHeader(http.StatusOK)
 	return nil
 }
-func writeCorsHeaders(w http.ResponseWriter, r *http.Request) {
-	w.Header().Add("Access-Control-Allow-Origin", "*")
+func writeCorsHeaders(w http.ResponseWriter, r *http.Request, corsHeaders string) {
+	log.Debugf("CORS header is enabled and set to: %s", corsHeaders)
+	w.Header().Add("Access-Control-Allow-Origin", corsHeaders)
 	w.Header().Add("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, X-Registry-Auth")
 	w.Header().Add("Access-Control-Allow-Methods", "GET, POST, DELETE, PUT, OPTIONS")
 }
@@ -1230,7 +1231,7 @@ func ping(eng *engine.Engine, version version.Version, w http.ResponseWriter, r 
 	return err
 }
 
-func makeHttpHandler(eng *engine.Engine, logging bool, localMethod string, localRoute string, handlerFunc HttpApiFunc, enableCors bool, dockerVersion version.Version) http.HandlerFunc {
+func makeHttpHandler(eng *engine.Engine, logging bool, localMethod string, localRoute string, handlerFunc HttpApiFunc, corsHeaders string, dockerVersion version.Version) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// log the request
 		log.Debugf("Calling %s %s", localMethod, localRoute)
@@ -1249,8 +1250,8 @@ func makeHttpHandler(eng *engine.Engine, logging bool, localMethod string, local
 		if version == "" {
 			version = api.APIVERSION
 		}
-		if enableCors {
-			writeCorsHeaders(w, r)
+		if corsHeaders != "" {
+			writeCorsHeaders(w, r, corsHeaders)
 		}
 
 		if version.GreaterThan(api.APIVERSION) {
@@ -1292,7 +1293,8 @@ func AttachProfiler(router *mux.Router) {
 	router.HandleFunc("/debug/pprof/threadcreate", pprof.Handler("threadcreate").ServeHTTP)
 }
 
-func createRouter(eng *engine.Engine, logging, enableCors bool, dockerVersion string) *mux.Router {
+// we keep enableCors just for legacy usage, need to be removed in the future
+func createRouter(eng *engine.Engine, logging, enableCors bool, corsHeaders string, dockerVersion string) *mux.Router {
 	r := mux.NewRouter()
 	if os.Getenv("DEBUG") != "" {
 		AttachProfiler(r)
@@ -1354,6 +1356,12 @@ func createRouter(eng *engine.Engine, logging, enableCors bool, dockerVersion st
 		},
 	}
 
+	// If "api-cors-header" is not given, but "api-enable-cors" is true, we set cors to "*"
+	// otherwise, all head values will be passed to HTTP handler
+	if corsHeaders == "" && enableCors {
+		corsHeaders = "*"
+	}
+
 	for method, routes := range m {
 		for route, fct := range routes {
 			log.Debugf("Registering %s, %s", method, route)
@@ -1363,7 +1371,7 @@ func createRouter(eng *engine.Engine, logging, enableCors bool, dockerVersion st
 			localMethod := method
 
 			// build the handler function
-			f := makeHttpHandler(eng, logging, localMethod, localRoute, localFct, enableCors, version.Version(dockerVersion))
+			f := makeHttpHandler(eng, logging, localMethod, localRoute, localFct, corsHeaders, version.Version(dockerVersion))
 
 			// add the new route
 			if localRoute == "" {
@@ -1382,7 +1390,7 @@ func createRouter(eng *engine.Engine, logging, enableCors bool, dockerVersion st
 // FIXME: refactor this to be part of Server and not require re-creating a new
 // router each time. This requires first moving ListenAndServe into Server.
 func ServeRequest(eng *engine.Engine, apiversion version.Version, w http.ResponseWriter, req *http.Request) {
-	router := createRouter(eng, false, true, "")
+	router := createRouter(eng, false, true, "", "")
 	// Insert APIVERSION into the request as a convenience
 	req.URL.Path = fmt.Sprintf("/v%s%s", apiversion, req.URL.Path)
 	router.ServeHTTP(w, req)
@@ -1391,7 +1399,7 @@ func ServeRequest(eng *engine.Engine, apiversion version.Version, w http.Respons
 // serveFd creates an http.Server and sets it up to serve given a socket activated
 // argument.
 func serveFd(addr string, job *engine.Job) error {
-	r := createRouter(job.Eng, job.GetenvBool("Logging"), job.GetenvBool("EnableCors"), job.Getenv("Version"))
+	r := createRouter(job.Eng, job.GetenvBool("Logging"), job.GetenvBool("EnableCors"), job.Getenv("CorsHeaders"), job.Getenv("Version"))
 
 	ls, e := systemd.ListenFD(addr)
 	if e != nil {
@@ -1503,7 +1511,7 @@ func setSocketGroup(addr, group string) error {
 }
 
 func setupUnixHttp(addr string, job *engine.Job) (*HttpServer, error) {
-	r := createRouter(job.Eng, job.GetenvBool("Logging"), job.GetenvBool("EnableCors"), job.Getenv("Version"))
+	r := createRouter(job.Eng, job.GetenvBool("Logging"), job.GetenvBool("EnableCors"), job.Getenv("CorsHeaders"), job.Getenv("Version"))
 
 	if err := syscall.Unlink(addr); err != nil && !os.IsNotExist(err) {
 		return nil, err
@@ -1558,7 +1566,7 @@ func setupTcpHttp(addr string, job *engine.Job) (*HttpServer, error) {
 		log.Infof("/!\\ DON'T BIND ON ANOTHER IP ADDRESS THAN 127.0.0.1 IF YOU DON'T KNOW WHAT YOU'RE DOING /!\\")
 	}
 
-	r := createRouter(job.Eng, job.GetenvBool("Logging"), job.GetenvBool("EnableCors"), job.Getenv("Version"))
+	r := createRouter(job.Eng, job.GetenvBool("Logging"), job.GetenvBool("EnableCors"), job.Getenv("CorsHeaders"), job.Getenv("Version"))
 
 	l, err := newListener("tcp", addr, job.GetenvBool("BufferRequests"))
 	if err != nil {
