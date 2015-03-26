@@ -247,8 +247,9 @@ can build the documentation from the local host. The build starts a container
 and loads the documentation into a server. As long as this container runs, you
 can browse the docs.
 
-1. In a terminal, change to the root of your `docker-fork` repository.
+1. In a terminal, change to the root of your `dry-run-test` repository.
 
+        # 'dry-run-test' should be name of your dry-run-test repo dir
         $ cd ~/repos/dry-run-test
 
 2. Make sure you are in your feature branch.
