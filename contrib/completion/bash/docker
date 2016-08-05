@@ -1967,7 +1967,7 @@ _docker_node_inspect() {
 			COMPREPLY=( $( compgen -W "--format -f --help --pretty" -- "$cur" ) )
 			;;
 		*)
-			__docker_complete_nodes
+			__docker_complete_nodes_plus_self
 	esac
 }
 
