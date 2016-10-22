@@ -12,7 +12,7 @@ weight=-1
 # Content trust in Docker
 
 When transferring data among networked systems, *trust* is a central concern. In
-particular, when communicating over an untrusted medium such as the internet, it
+particular, when communicating over an untrusted medium such as the Internet, it
 is critical to ensure the integrity and the publisher of all the data a system
 operates on. You use Docker Engine to push and pull images (data) to a public or private registry. Content trust
 gives you the ability to verify both the integrity and the publisher of all the

@@ -1168,7 +1168,7 @@ list of capabilities that are kept. The following table lists the Linux capabili
 | SETGID           | Make arbitrary manipulations of process GIDs and supplementary GID list.                                                      |
 | SETUID           | Make arbitrary manipulations of process UIDs.                                                                                 |
 | LINUX_IMMUTABLE  | Set the FS_APPEND_FL and FS_IMMUTABLE_FL i-node flags.                                                                        |
-| NET_BIND_SERVICE | Bind a socket to internet domain privileged ports (port numbers less than 1024).                                              |
+| NET_BIND_SERVICE | Bind a socket to Internet domain privileged ports (port numbers less than 1024).                                              |
 | NET_BROADCAST    | Make socket broadcasts, and listen to multicasts.                                                                             |
 | IPC_LOCK         | Lock memory (mlock(2), mlockall(2), mmap(2), shmctl(2)).                                                                      |
 | IPC_OWNER        | Bypass permission checks for operations on System V IPC objects.                                                              |

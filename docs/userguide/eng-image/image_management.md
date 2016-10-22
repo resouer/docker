@@ -42,7 +42,7 @@ The Docker Hub has its own registry which, like the Hub itself, is run and manag
 ## Content Trust
 
 When transferring data among networked systems, *trust* is a central concern. In
-particular, when communicating over an untrusted medium such as the internet, it
+particular, when communicating over an untrusted medium such as the Internet, it
 is critical to ensure the integrity and publisher of all of the data a system
 operates on. You use Docker to push and pull images (data) to a registry.
 Content trust gives you the ability to both verify the integrity and the

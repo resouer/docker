@@ -109,7 +109,7 @@ containers.
 
 If your Docker host is only part of an IPv6 subnet but has not got an IPv6
 subnet assigned you can use NDP proxying to connect your containers via IPv6 to
-the internet. For example your host has the IPv6 address `2001:db8::c001`, is
+the Internet. For example your host has the IPv6 address `2001:db8::c001`, is
 part of the subnet `2001:db8::/64` and your IaaS provider allows you to
 configure the IPv6 addresses `2001:db8::c000` to `2001:db8::c00f`:
 

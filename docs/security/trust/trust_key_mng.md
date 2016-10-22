@@ -29,7 +29,7 @@ the image repository:
 
 - The timestamp and snapshot keys are safely generated and stored in a signing server
 	that is deployed alongside the Docker registry. These keys are generated in a backend
-	service that isn't directly exposed to the internet and are encrypted at rest.
+	service that isn't directly exposed to the Internet and are encrypted at rest.
 
 Delegation keys are optional, and not generated as part of the normal `docker`
 workflow.  They need to be
